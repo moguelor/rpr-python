@@ -88,6 +88,15 @@ rpr all
 rpr {project_key} {environment} {tag_version}
 ```
 
+#Projects Keys
+```
+cu - contest.user.react
+cp - contest.panel.react
+au - ask.apply.react
+ap - ask.panel.react
+mar - mybusiness.affiliate.react
+```
+
 
 
 
