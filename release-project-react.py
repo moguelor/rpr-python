@@ -1,0 +1,323 @@
+#!/Library/Frameworks/Python.framework/Versions/3.6/bin/python3
+
+# Comandos disponibles:
+#
+# release-project-react - Libera todos los proyectos en el environment "dev".
+# release-project-react {project} - Libera el proyecto especificado en el enviroment "dev".
+# release-project-react {project} {environment}  - Libera el proyecto en el environment especificado.
+# release-project-react all {environment}  - Libera todos los proyectos en el environment especificado.
+# release-project-react {project} all  - Libera el proyecto en todos los environments.
+# release-project-react all  - Libera todos los proyectos en todos los environments.
+# release-project-react {project} {environment} {branch} - Libera el compilado desde la rama especificada del proyecto.
+
+import subprocess
+import os
+import sys
+import shutil
+from common import (confirmMessage, printWithColor,getBasePathSource, getNameServer)
+
+# Rama master
+master_branch_name = 'master'
+
+# Palabras clave de los proyectos válidos.
+active_projects = ['cu', 'cp', 'au', 'ap', 'mar']
+
+# Environments válidos.
+active_enviroments = ['dev', 'test', 'demo', 'prod']
+
+# Nombre real del proyecto en local.
+project_names = {'cu': 'contest-user-react', 'cp': 'contest-panel-react','au': 'ask-apply', 'ap': 'ask-panel-react', 'mar': 'mybusiness-affiliate-react'}
+
+# Proyecto donde se incluira los compilados dependiendo del environment.
+project_dst_path_dev = {'cu': 'contest-backend', 'cp': 'core','au': 'ask-backend', 'ap': 'core', 'mar': 'core'}
+project_dst_path_test = {'cu': 'stable-contest', 'cp': 'stable-mybusiness','au': 'stable-ask', 'ap': 'stable-mybusiness', 'mar': 'stable-mybusiness'}
+project_dst_path_demo = {'cu': 'demo-contest', 'cp': 'demo-mybusiness','au': 'demo-ask', 'ap': 'demo-mybusiness', 'mar': 'demo-mybusiness'}
+project_dst_path_prod = {'cu': 'contest', 'cp': 'mybusiness','au': 'ask', 'ap': 'mybusiness', 'mar': 'mybusiness'}
+
+# Nombre del archivo generado representando el Asset.php.
+file_asset_name = {'cu': 'ContestAsset', 'cp': 'ContestAsset','au': 'ApplyAsset', 'ap': 'AskAsset', 'mar': 'MyBusinessAffiliateReactAsset'}
+
+# Carpeta especifica donde se incluyen los compilados dentro de frontend/web
+folder_web_name = {'cu': 'contest', 'cp': 'contest','au': 'apply', 'ap': 'ask', 'mar': 'mybusiness-affiliate-react'}
+
+# Ruta temporal local para generar archivos antes de subirlos.
+temp_path = "/Users/josemoguel/Documents/"
+
+# Obtener la rama master.
+def getBranchMaster():
+    return master_branch_name
+
+# Asignar la rama master.
+def setBranchMaster(branch):
+    global master_branch_name
+    master_branch_name = branch
+
+# Valida si el proyecto es uno registrado en la configuración.
+def validProject(project):
+    if not project in active_projects:
+        printWithColor('\033[91m The project is not valid.')
+        return False
+    return True
+
+# Verifica si es un enviroment que se require conectar a un servidor, se le concatena el ssh.
+def verifyServer(command_to_run, env="dev", force = False):
+    name_server = getNameServer(env)
+   
+    if env == 'test' or env == 'demo':
+        if force:
+            command_to_run = 'sudo ' + command_to_run
+        return 'ssh ' + name_server + ' "' + command_to_run + '" '
+    elif env == 'dev':
+        return command_to_run
+
+# Busca los archivos .js y .css
+def searchFiles(ruta):
+    files = {'js': '', 'css': ''}
+    for arch in os.scandir(ruta):
+        filename, file_extension = os.path.splitext(arch.name)
+        if file_extension == '.js':
+            files['js'] = arch.name
+        elif file_extension == '.css':
+            files['css'] = arch.name
+    return files
+
+# Obtener proyecto donde se guardaran los compilados.
+def getDstProject(project, env="dev"):
+    if env == "dev":
+        return project_dst_path_dev[project]
+    if env == "test":
+        return project_dst_path_test[project]
+    if env == "demo":
+        return project_dst_path_demo[project]
+    if env == "prod":
+        return project_dst_path_prod[project]
+
+# Generacion del archivo Asset.php
+def buildFile(filename, project, compiled_files):
+    name_assets = file_asset_name[project]
+    folder_web = folder_web_name[project]
+
+    archivo = open(filename, 'w')
+
+    file = '<?php \n'
+    file += '/** \n'
+    file += '* @link http://www.yiiframework.com/ \n'
+    file += '* @copyright Copyright (c) 2008 Yii Software LLC \n'
+    file += '* @license http://www.yiiframework.com/license/ \n'
+    file += '*/ \n'
+    file += '\n'
+    file += 'namespace frontend\\assets; \n'
+    file += '\n'
+    file += 'use yii\web\AssetBundle; \n'
+    file += 'use Yii; \n'
+    file += '\n'
+    file += '/** \n'
+    file += '* @author Qiang Xue <qiang.xue@gmail.com> \n'
+    file += '* @since 2.0 \n'
+    file += '*/ \n'
+    file += 'class ' + name_assets + ' extends AssetBundle \n'
+    file += '{ \n'
+    file += '   public $basePath = \'@webroot\'; \n'
+    file += '   public $baseUrl = \'@web\'; \n'
+    file += '   public $css = [ \n'
+    file += '       \'' + folder_web + '/' + compiled_files['css'] + '\', \n'
+    file += '       \'//fonts.googleapis.com/css?family=Open+Sans::300,300i,400,400i,600,600i,700,700i\', \n'
+    file += '   ]; \n'
+    file += '   public $js = []; \n'
+    file += '   public $depends = [ \n'
+    file += '       \'yii\web\YiiAsset\', \n'
+    file += '       \'yii\\bootstrap\BootstrapAsset\', \n'
+    
+     # Estos proyectos necesitan de este asset.
+    if project in ['cu', 'au']:
+        file += '       \'frontend\\assets\FontAwesomeAsset\' \n'
+
+    file += '   ]; \n'
+    file += '\n'
+    file += '   public function init() \n'
+    file += '   { \n'
+    file += '       parent::init(); \n'
+    file += '\n'
+    file += '       $this->js[] = "'+folder_web+'/' + compiled_files['js'] + '"; \n'
+
+    # Estos proyectos necesitan del api de maps.
+    if project in ['mar']:
+        file += '       $this->js[] = \'//maps.googleapis.com/maps/api/js?key=\'. Yii::$app->params[\'googleMapsApiKey\'] .\'&libraries=geometry,drawing,places\'; \n'     
+
+    file += '\n'
+    file += '   } \n'
+    file += '}'
+
+    archivo.write(file + '\n')
+    archivo.close()
+
+# Mueve un archivo de un directorio a otro.
+def moveFile(src, dst):
+    shutil.move(src, dst)
+
+# Sube un archivo del local al servidor.
+def uploadFileLocalToServer(src, dst, name_server):
+    command = 'scp ' + src + ' ' + name_server + ':' + dst
+    printWithColor('command: `' + command)
+    os.system(command)
+
+# Subir los archivos especificados.
+def uploadFile(src, dst, env="dev"):
+    if env == "dev":
+        moveFile(src, dst)
+    if env == "test" or env == "demo":
+        uploadFileLocalToServer(src, dst, getNameServer(env))
+
+
+# Update solutions
+def updateSolution(project_key, env="dev"):
+    base_path_source = getBasePathSource(env)
+    project_name = project_names[project_key]
+    project_path = getBasePathSource('dev') + project_name
+    sources_compiled_path = getBasePathSource('dev') + project_name + "/dist"
+    sources_compiled_dst = base_path_source + getDstProject(project_key, env) + '/frontend/web/' + folder_web_name[project_key]
+    name_file_asset = file_asset_name[project_key]
+    asset_src = temp_path + name_file_asset + '.php'
+    asset_dst = base_path_source + getDstProject(project_key, env) + '/frontend/assets/' + name_file_asset + '.php'
+    name_server = getNameServer(env)
+    base_command = 'cd ' + project_path
+
+    os.system('clear')
+    printWithColor('\033[94m ***** Updating project: (' + project_name + ') in environment {' + env + '}*****')
+    print('\n')
+
+    if env == 'test' or env == 'demo':
+        printWithColor('==== Conecting to server {' + name_server + '}===')
+        print('\n')
+
+    print('==== info ===')
+    print('base_path_source:' + base_path_source)
+    print('project_name:' + project_name)
+    print('project_path:' + project_path)
+    print('sources_compiled_path:' + sources_compiled_path)
+    print('sources_compiled_dst:' + sources_compiled_dst)
+    print('asset_src:' + asset_src)
+    print('asset_dst:' + asset_dst)
+    print('name_file_asset:' + name_file_asset)
+    print('\n')
+
+    # Checkout a rama del enviroment especificado por default es master.
+    command = base_command + ' && git checkout ' + master_branch_name
+    printWithColor('==== Checkout branch { ' + master_branch_name + ' } ===')
+    printWithColor('\033[94m command: git checkout ' + master_branch_name)
+    os.system(command)
+    print('\n')
+
+    # Elimina archivos .js y .css en la carpeta destino.
+    command = verifyServer('rm -rf ' + sources_compiled_dst + '/*.js && rm -rf ' + sources_compiled_dst + '/*.css ', env)
+    printWithColor('==== Deleting old files .css and .js ===')
+    printWithColor('\033[94m command: `' + command)
+    os.system(command)
+    print('\n')
+
+    # Eliminando archivo asset.
+    command = verifyServer('rm -r ' + asset_dst + ' ', env)
+    printWithColor('==== Deleting old asset file ===')
+    printWithColor('\033[94m command: `' + command)
+    os.system(command)
+    print('\n')
+
+    # Elimina los assets dentro de frontend/web/
+    # command = verifyServer('rm -r ./' + getDstProject(project_key, env) + '/frontend/web/assets/*', env, True)
+    # printWithColor('==== Deleting assets from frontend/web/assets ===')
+    # printWithColor('\033[94m command: `' + command)
+    # os.system(command)
+    # print('\n')
+
+    # Genera compilado.
+    command = base_command + ' && npm run build:' + env
+    printWithColor('==== Compiling project react `'+project_name+'`===')
+    printWithColor('\033[94m command: npm run build:' + env)
+    os.system(command)
+    print('\n')
+
+    # Analiza el directorio de compilación en busqueda del .js y .css.
+    printWithColor('==== Analizing files compiled ===')
+    compiled_files = searchFiles(sources_compiled_path)
+    print(compiled_files)
+    print('\n')
+
+    # Subir archivo compilado .js
+    printWithColor('==== Moving compiled .js===')
+    uploadFile(sources_compiled_path + '/' + compiled_files['js'], sources_compiled_dst + '/' + compiled_files['js'], env)
+    printWithColor('File to upload: `' + compiled_files['js'])
+    print('\n')
+
+    # Subir archivo compilado .css
+    printWithColor('==== Moving compiled .css===')
+    uploadFile(sources_compiled_path + '/' +compiled_files['css'], sources_compiled_dst + '/' + compiled_files['css'], env)
+    printWithColor('\033[94m File to upload: `' + compiled_files['css'])
+    print('\n')
+
+    # Genera el archivo de assets.
+    printWithColor('==== Generating asset file ===')
+    buildFile(asset_src, project_key, compiled_files)
+    printWithColor('\033[94m File: `' + asset_src)
+    print('\n')
+
+    # Mueve el archivo de assets al directorio destino
+    printWithColor('==== Moving asset ===')
+    uploadFile(asset_src, asset_dst, env)
+    printWithColor('\033[94m Dst: `' + asset_dst)
+    print('\n')
+
+def main():
+
+    numArguments = len(sys.argv)
+
+    # El nombre del archivo lo toma como argumento.
+    if numArguments == 1:
+        # Si no tiene argumentos se actualizan en local todos los proyectos.
+        if(confirmMessage('Are you sure to release { ALL } projects in ' + 'environment { dev }')):
+            for project in active_projects:
+                updateSolution(project)
+
+    # Si se le pasa un parametro se toma en cuenta que es un proyecto de local a actualizar.
+    elif numArguments == 2:
+        project = sys.argv[1]
+
+        # Actualiza todos los proyectos en todos los environments
+        if project == 'all':
+            if(confirmMessage('Are you sure to release { ALL } projecst in { ALL } environments')):
+                for env in active_enviroments:
+                    for project in active_projects:
+                        updateSolution(project, env)
+        elif(validProject(project)):
+            # Actualiza el proyecto especificado en el local.
+            if(confirmMessage('Are you sure to release  {' + project_names[project] + '} in ' + 'environment { dev }')):
+                updateSolution(project)
+
+    # Si se le pasa dos parametros se toma en cuenta que el primero es el proyecto y el segundo es el environment.
+    elif numArguments == 3 or numArguments == 4:
+
+        project = sys.argv[1]
+        env = sys.argv[2]
+
+        # Especifica la rama del proyecto base a compilar 'master | development '
+        if numArguments == 4:
+            setBranchMaster(sys.argv[3])
+
+        # Actualiza todos los proyectos del environment especificados.
+        if project == 'all':
+            if(confirmMessage('Are you sure to release { ALL } projects in ' + 'environment {' + env + '}')):
+                for project in active_projects:
+                    updateSolution(project, env)
+
+        # Actualiza el proyecto especificado en todos los environments disponibles.
+        elif env == 'all':
+            if(confirmMessage('Are you sure to release {' + project_names[project] + '} in { ALL } environments')):
+                for env in active_enviroments:
+                    updateSolution(project, env)
+        elif(validProject(project)):
+            # Actualiza el proyecto especificado en el environment especificado.
+            if(confirmMessage('Are you sure to release {' + project_names[project] + '} in ' + 'environment {' + env + '}')):
+                updateSolution(project, env)
+    else:
+        printWithColor('\033[91m Num parameters invalid.')
+
+main()
