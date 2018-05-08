@@ -23,7 +23,7 @@ master_branch_name = 'master'
 active_projects = ['cu', 'cp', 'au', 'ap', 'mar']
 
 # Environments válidos.
-active_enviroments = ['dev', 'test', 'demo', 'prod']
+active_enviroments = ['dev', 'test', 'demo']
 
 # Nombre real del proyecto en local.
 project_names = {'cu': 'contest-user-react', 'cp': 'contest-panel-react','au': 'ask-apply', 'ap': 'ask-panel-react', 'mar': 'mybusiness-affiliate-react'}
@@ -32,7 +32,6 @@ project_names = {'cu': 'contest-user-react', 'cp': 'contest-panel-react','au': '
 project_dst_path_dev = {'cu': 'contest-backend', 'cp': 'core','au': 'ask-backend', 'ap': 'core', 'mar': 'core'}
 project_dst_path_test = {'cu': 'stable-contest', 'cp': 'stable-mybusiness','au': 'stable-ask', 'ap': 'stable-mybusiness', 'mar': 'stable-mybusiness'}
 project_dst_path_demo = {'cu': 'demo-contest', 'cp': 'demo-mybusiness','au': 'demo-ask', 'ap': 'demo-mybusiness', 'mar': 'demo-mybusiness'}
-project_dst_path_prod = {'cu': 'contest', 'cp': 'mybusiness','au': 'ask', 'ap': 'mybusiness', 'mar': 'mybusiness'}
 
 # Nombre del archivo generado representando el Asset.php.
 file_asset_name = {'cu': 'ContestAsset', 'cp': 'ContestAsset','au': 'ApplyAsset', 'ap': 'AskAsset', 'mar': 'MyBusinessAffiliateReactAsset'}
@@ -89,8 +88,6 @@ def getDstProject(project, env="dev"):
         return project_dst_path_test[project]
     if env == "demo":
         return project_dst_path_demo[project]
-    if env == "prod":
-        return project_dst_path_prod[project]
 
 # Generacion del archivo Asset.php
 def buildFile(filename, project, compiled_files):
@@ -205,6 +202,13 @@ def updateSolution(project_key, env="dev"):
     command = base_command + ' && git checkout ' + master_branch_name
     printWithColor('==== Checkout branch { ' + master_branch_name + ' } ===')
     printWithColor('\033[94m command: git checkout ' + master_branch_name)
+    os.system(command)
+    print('\n')
+
+    # Baja los cambios de master.
+    command = base_command + ' && git pull origin ' + master_branch_name
+    printWithColor('==== Git pull { ' + master_branch_name + ' } ===')
+    printWithColor('\033[94m command: git pull ' + master_branch_name)
     os.system(command)
     print('\n')
 

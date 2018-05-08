@@ -15,10 +15,10 @@ from common import (confirmMessage, printWithColor, getBasePathSource, getNameSe
 active_projects = ['mybusiness', 'coupon', 'contest', 'ask', 'rewards']
 
 # Ambientes válidos.
-active_enviroments = ['dev', 'test', 'demo', 'prod']
+active_enviroments = ['dev', 'test', 'demo']
 
 # Relacion enviroment -> rama
-enviroment_map_branch = {'dev':'development', 'test' : 'stable', 'demo' : 'demo', 'prod' : 'master'}
+enviroment_map_branch = {'dev':'development', 'test' : 'stable', 'demo' : 'demo'}
 
 # Dependencia de proyecto
 project_react = {
@@ -33,13 +33,11 @@ project_react = {
 project_names_dev = { 'contest' : 'contest-backend', 'ask' : 'ask-backend', 'rewards' : 'social', 'coupon' : 'coupon', 'mybusiness' : 'core'}
 project_names_test = { 'contest' : 'stable-contest', 'ask' : 'stable-ask', 'rewards' : 'stable-rewards', 'coupon' : 'stable-coupon', 'mybusiness' : 'stable-mybusiness'}
 project_names_demo = { 'contest' : 'demo-contest', 'ask' : 'demo-ask', 'rewards' : 'demo-rewards', 'coupon' : 'demo-coupon', 'mybusiness' : 'demo-mybusiness'}
-project_names_prod = { 'contest' : 'contest', 'ask' : 'ask', 'rewards' : 'rewards', 'coupon' : 'coupon', 'mybusiness' : 'mybusiness'}
 
 # Proyectos en react.
 project_react_path_dev = {'cu': 'contest-user-react', 'cp': 'contest-panel-react','au': 'ask-apply', 'ap': 'ask-panel-react', 'mar': 'mybusiness-affiliate-react'}
 project_react_path_test = {'cu': 'stable-contest-user-react', 'cp': 'stable-contest-panel-react','au': 'stable-ask-apply', 'ap': 'stable-ask-panel-react', 'mar': 'stable-mybusiness-affiliate-react'}
 project_react_path_demo = {'cu': 'demo-contest-user-react', 'cp': 'demo-contest-panel-react','au': 'demo-ask-apply', 'ap': 'demo-ask-panel-react', 'mar': 'demo-mybusiness-affiliate-react'}
-project_react_path_prod = {'cu': 'contest-user-react', 'cp': 'contest-panel-react','au': 'ask-apply', 'ap': 'ask-panel-react', 'mar': 'mybusiness-affiliate-react'}
 
 # Obtener el nombre del proyecto.
 def getProjectName(project, env = 'dev'):
@@ -49,8 +47,6 @@ def getProjectName(project, env = 'dev'):
         return project_names_test[project]
     elif(env == 'demo'):
         return project_names_demo[project]
-    elif(env == 'prod'):
-        return project_names_prod[project]
 
 # Obtener el nombre del proyecto en react.
 def getReactProjectName(project, env="dev"):
@@ -60,8 +56,6 @@ def getReactProjectName(project, env="dev"):
         return project_react_path_test[project]
     if env == "demo":
         return project_react_path_demo[project]
-    if env == "prod":
-        return project_react_path_prod[project]
 
 # Obtener el nombre de la rama.
 def getBranchName(env = 'dev'):
@@ -77,7 +71,7 @@ def validProject(project):
 # Verifica si es un enviroment que se require conectar a un servidor, se le concatena el ssh.
 def verifyServer(command_to_run, env="dev"):
     name_server = getNameServer(env)
-    if env == 'test' or env == 'demo' or env == 'prod':
+    if env == 'test' or env == 'demo':
         return 'ssh '+ name_server +' "'+ command_to_run +'" ' 
     elif env == 'dev':
         return command_to_run
@@ -117,7 +111,7 @@ def updateSolution(project, env="dev"):
     print('\n')
 
     # Hacer pull para bajar cambios.
-    command = verifyServer(base_command +' && git pull ', env)
+    command = verifyServer(base_command +' && git pull origin '+ branch_name, env)
     printWithColor('==== Calling pull `'+ command +'` ===')
     os.system(command)
     print('\n')
