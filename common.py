@@ -3,10 +3,7 @@
 import subprocess
 import os
 import sys
-
-name_server_test = 'test-swapwink'
-name_server_prod = 'ec2.swapwink.com'
-base_path_local_source = '/Users/josemoguel/Documents/fuentes/swapwink/'
+from config import (name_server_test, name_server_prod, base_path_local_source)
 
 # Mensaje para confirmar.
 def confirmMessage(message):

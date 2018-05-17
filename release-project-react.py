@@ -15,32 +15,10 @@ import os
 import sys
 import shutil
 from common import (confirmMessage, printWithColor,getBasePathSource, getNameServer)
+from config import (active_projects, active_enviroments, project_names, project_dst_path_dev, project_dst_path_test, project_dst_path_demo, project_dst_path_prod, file_asset_name, folder_web_name, temp_path)
 
 # Rama master
 master_branch_name = 'master'
-
-# Palabras clave de los proyectos válidos.
-active_projects = ['cu', 'cp', 'au', 'ap', 'mar']
-
-# Environments válidos.
-active_enviroments = ['dev', 'test', 'demo']
-
-# Nombre real del proyecto en local.
-project_names = {'cu': 'contest-user-react', 'cp': 'contest-panel-react','au': 'ask-apply', 'ap': 'ask-panel-react', 'mar': 'mybusiness-affiliate-react'}
-
-# Proyecto donde se incluira los compilados dependiendo del environment.
-project_dst_path_dev = {'cu': 'contest-backend', 'cp': 'core','au': 'ask-backend', 'ap': 'core', 'mar': 'core'}
-project_dst_path_test = {'cu': 'stable-contest', 'cp': 'stable-mybusiness','au': 'stable-ask', 'ap': 'stable-mybusiness', 'mar': 'stable-mybusiness'}
-project_dst_path_demo = {'cu': 'demo-contest', 'cp': 'demo-mybusiness','au': 'demo-ask', 'ap': 'demo-mybusiness', 'mar': 'demo-mybusiness'}
-
-# Nombre del archivo generado representando el Asset.php.
-file_asset_name = {'cu': 'ContestAsset', 'cp': 'ContestAsset','au': 'ApplyAsset', 'ap': 'AskAsset', 'mar': 'MyBusinessAffiliateReactAsset'}
-
-# Carpeta especifica donde se incluyen los compilados dentro de frontend/web
-folder_web_name = {'cu': 'contest', 'cp': 'contest','au': 'apply', 'ap': 'ask', 'mar': 'mybusiness-affiliate-react'}
-
-# Ruta temporal local para generar archivos antes de subirlos.
-temp_path = "/Users/josemoguel/Documents/"
 
 # Obtener la rama master.
 def getBranchMaster():
@@ -62,7 +40,7 @@ def validProject(project):
 def verifyServer(command_to_run, env="dev", force = False):
     name_server = getNameServer(env)
    
-    if env == 'test' or env == 'demo':
+    if env == 'test' or env == 'demo' or env == 'prod':
         if force:
             command_to_run = 'sudo ' + command_to_run
         return 'ssh ' + name_server + ' "' + command_to_run + '" '
@@ -88,6 +66,8 @@ def getDstProject(project, env="dev"):
         return project_dst_path_test[project]
     if env == "demo":
         return project_dst_path_demo[project]
+    if env == "prod":
+        return project_dst_path_prod[project]
 
 # Generacion del archivo Asset.php
 def buildFile(filename, project, compiled_files):
