@@ -34,7 +34,7 @@ def setBranchMaster(branch):
 # Valida si el proyecto es uno registrado en la configuración.
 def validProject(project):
     if not project in active_projects:
-        printWithColor('\033[91m The project is not valid.')
+        printWithColor('\033[91m The project {'+ project +'} is not valid.')
         return False
     return True
 
@@ -262,15 +262,17 @@ def main():
                         updateSolution(project, env)
         # Identifica si se pasó un arreglo de proyectos.
         elif isinstance(projects, list):
-            if(confirmMessage('Are you sure to release { '+ project +' } projects in environment { dev }')):
+            names = ''
+            for idx,project in enumerate(projects):
+                if(validProject(project)):
+                    names = names + project_names[project] 
+                    if ((idx + 1) < len(projects)):
+                        names += ', '
+                
+            if(confirmMessage('Are you sure to release { '+ names +' } projects in environment { dev }')):
                 for project in projects:
                     if(validProject(project)):
                         updateSolution(project)
-        # Actualiza el proyecto especificado.
-        elif(validProject(project)):
-            # Actualiza el proyecto especificado en el local.
-            if(confirmMessage('Are you sure to release  {' + project_names[project] + '} in ' + 'environment { dev }')):
-                updateSolution(project)
 
     # Si se le pasa dos parametros se toma en cuenta que el primero es el proyecto y el segundo es el environment.
     elif numArguments == 3 or numArguments == 4:
@@ -296,14 +298,16 @@ def main():
                     updateSolution(project, env)
         # Identifica si se pasó un arreglo de proyectos.
         elif isinstance(projects, list):
-            if(confirmMessage('Are you sure to release { '+ project +' } projects in environment {' + env + '}')):
+            names = ''
+            for idx,project in enumerate(projects):
+                if(validProject(project)):
+                    names = names + project_names[project] 
+                    if ((idx + 1) < len(projects)):
+                        names += ', '
+            if(confirmMessage('Are you sure to release { '+ names +' } projects in environment {' + env + '}')):
                 for project in projects:
                     if(validProject(project)):
                         updateSolution(project, env)
-        elif(validProject(project)):
-            # Actualiza el proyecto especificado en el environment especificado.
-            if(confirmMessage('Are you sure to release {' + project_names[project] + '} in ' + 'environment {' + env + '}')):
-                updateSolution(project, env)
     else:
         printWithColor('\033[91m Num parameters invalid.')
 
