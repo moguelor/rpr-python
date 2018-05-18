@@ -3,7 +3,8 @@
 import subprocess
 import os
 import sys
-from config import (name_server_test, name_server_prod, base_path_local_source)
+from config import (name_server_test, name_server_prod)
+from config_local import (base_path_local_source)
 
 # Mensaje para confirmar.
 def confirmMessage(message):

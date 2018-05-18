@@ -2,20 +2,22 @@
 
 # Comandos disponibles:
 #
-# release-project-react - Libera todos los proyectos en el environment "dev".
-# release-project-react {project} - Libera el proyecto especificado en el enviroment "dev".
-# release-project-react {project} {environment}  - Libera el proyecto en el environment especificado.
-# release-project-react all {environment}  - Libera todos los proyectos en el environment especificado.
-# release-project-react {project} all  - Libera el proyecto en todos los environments.
-# release-project-react all  - Libera todos los proyectos en todos los environments.
-# release-project-react {project} {environment} {branch} - Libera el compilado desde la rama especificada del proyecto.
+# rpr - Libera todos los proyectos en el environment "dev".
+# rpr {project} - Libera el proyecto especificado en el enviroment "dev".
+# rpr {project} {environment}  - Libera el proyecto en el environment especificado.
+# rpr all {environment}  - Libera todos los proyectos en el environment especificado.
+# rpr {project} all  - Libera el proyecto en todos los environments.
+# rpr all  - Libera todos los proyectos en todos los environments.
+# rpr {project} {environment} {branch} - Libera el compilado desde la rama especificada del proyecto.
+# rpr {project1,project2} {environment} - Libera los proyectos en el environment especificado.
 
 import subprocess
 import os
 import sys
 import shutil
 from common import (confirmMessage, printWithColor,getBasePathSource, getNameServer)
-from config import (active_projects, active_enviroments, project_names, project_dst_path_dev, project_dst_path_test, project_dst_path_demo, project_dst_path_prod, file_asset_name, folder_web_name, temp_path)
+from config import (name_server_test, name_server_prod, active_projects, active_enviroments, project_dst_path_test, project_dst_path_demo, project_dst_path_prod, file_asset_name, folder_web_name)
+from config_local import (base_path_local_source, temp_path, project_names, project_dst_path_dev, project_dst_path_dev)
 
 # Rama master
 master_branch_name = 'master'
@@ -142,7 +144,7 @@ def uploadFileLocalToServer(src, dst, name_server):
 def uploadFile(src, dst, env="dev"):
     if env == "dev":
         moveFile(src, dst)
-    if env == "test" or env == "demo":
+    if env == "test" or env == "demo" or env == "prod":
         uploadFileLocalToServer(src, dst, getNameServer(env))
 
 
@@ -163,7 +165,7 @@ def updateSolution(project_key, env="dev"):
     printWithColor('\033[94m ***** Updating project: (' + project_name + ') in environment {' + env + '}*****')
     print('\n')
 
-    if env == 'test' or env == 'demo':
+    if env == 'test' or env == 'demo' or env == 'prod':
         printWithColor('==== Conecting to server {' + name_server + '}===')
         print('\n')
 
@@ -179,7 +181,7 @@ def updateSolution(project_key, env="dev"):
     print('\n')
 
     # Checkout a rama del enviroment especificado por default es master.
-    command = base_command + ' && git checkout ' + master_branch_name
+    command = base_command + ' && git checkout origin ' + master_branch_name
     printWithColor('==== Checkout branch { ' + master_branch_name + ' } ===')
     printWithColor('\033[94m command: git checkout ' + master_branch_name)
     os.system(command)
@@ -192,26 +194,12 @@ def updateSolution(project_key, env="dev"):
     os.system(command)
     print('\n')
 
-    # Elimina archivos .js y .css en la carpeta destino.
-    command = verifyServer('rm -rf ' + sources_compiled_dst + '/*.js && rm -rf ' + sources_compiled_dst + '/*.css ', env)
-    printWithColor('==== Deleting old files .css and .js ===')
-    printWithColor('\033[94m command: `' + command)
-    os.system(command)
-    print('\n')
-
-    # Eliminando archivo asset.
-    command = verifyServer('rm -r ' + asset_dst + ' ', env)
-    printWithColor('==== Deleting old asset file ===')
-    printWithColor('\033[94m command: `' + command)
-    os.system(command)
-    print('\n')
-
     # Elimina los assets dentro de frontend/web/
-    # command = verifyServer('rm -r ./' + getDstProject(project_key, env) + '/frontend/web/assets/*', env, True)
-    # printWithColor('==== Deleting assets from frontend/web/assets ===')
-    # printWithColor('\033[94m command: `' + command)
-    # os.system(command)
-    # print('\n')
+    command = verifyServer('rm -r ./' + getDstProject(project_key, env) + '/frontend/web/assets/*', env, True)
+    printWithColor('==== Deleting assets from frontend/web/assets ===')
+    printWithColor('\033[94m command: `' + command)
+    os.system(command)
+    print('\n')
 
     # Genera compilado.
     command = base_command + ' && npm run build:' + env
@@ -264,6 +252,7 @@ def main():
     # Si se le pasa un parametro se toma en cuenta que es un proyecto de local a actualizar.
     elif numArguments == 2:
         project = sys.argv[1]
+        projects = project.split(',')
 
         # Actualiza todos los proyectos en todos los environments
         if project == 'all':
@@ -271,6 +260,13 @@ def main():
                 for env in active_enviroments:
                     for project in active_projects:
                         updateSolution(project, env)
+        # Identifica si se pasó un arreglo de proyectos.
+        elif isinstance(projects, list):
+            if(confirmMessage('Are you sure to release { '+ project +' } projects in environment { dev }')):
+                for project in projects:
+                    if(validProject(project)):
+                        updateSolution(project)
+        # Actualiza el proyecto especificado.
         elif(validProject(project)):
             # Actualiza el proyecto especificado en el local.
             if(confirmMessage('Are you sure to release  {' + project_names[project] + '} in ' + 'environment { dev }')):
@@ -280,6 +276,7 @@ def main():
     elif numArguments == 3 or numArguments == 4:
 
         project = sys.argv[1]
+        projects = project.split(',')
         env = sys.argv[2]
 
         # Especifica la rama del proyecto base a compilar 'master | development '
@@ -297,6 +294,12 @@ def main():
             if(confirmMessage('Are you sure to release {' + project_names[project] + '} in { ALL } environments')):
                 for env in active_enviroments:
                     updateSolution(project, env)
+        # Identifica si se pasó un arreglo de proyectos.
+        elif isinstance(projects, list):
+            if(confirmMessage('Are you sure to release { '+ project +' } projects in environment {' + env + '}')):
+                for project in projects:
+                    if(validProject(project)):
+                        updateSolution(project, env)
         elif(validProject(project)):
             # Actualiza el proyecto especificado en el environment especificado.
             if(confirmMessage('Are you sure to release {' + project_names[project] + '} in ' + 'environment {' + env + '}')):
