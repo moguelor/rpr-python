@@ -3,7 +3,7 @@
 Build compiled react files in the many projects.
 
 1. Install `python3` with `brew` or with installer in the page https://www.python.org/download/releases/3.0/.
-2. Open the file `release-project-react.py`
+2. Create the file `config_local.py`
 2. Config your react names folders depending your local:
 
 ```python
@@ -31,25 +31,24 @@ project_dst_path_dev = {
   temp_path = "/Users/josemoguel/Documents/"
 ```
 
-5. Open file called `common.py`
-6. Config the base local source, this directory has all your swapwink's proyects.
+5. Config the base local source, this directory has all your swapwink's proyects.
   
 ```python
 base_path_local_source = '/Users/josemoguel/Documents/fuentes/swapwink/'
 ```
-7. Generate a link to file `release-project-react.py`.
+6. Generate a link to file `release-project-react.py`.
 ```
 ln -s /Users/josemoguel/Documents/scripts-python/release-project-react.py rpr
 ```
-8. Search your python3 path with `wich python3`
+7. Search your python3 path with `wich python3`
 ```
 /usr/bin/python3
 ```
-9. Move the file `rpr` to `/usr/bin/` to access the command globally.
+8. Move the file `rpr` to `/usr/bin/` to access the command globally.
 ```
 mv rpr /usr/bin/rpr
 ```
-10. Run rpr
+9. Run rpr
 
 # Commands
 
@@ -88,13 +87,20 @@ rpr all
 rpr {project_key} {environment} {tag_version}
 ```
 
+7. You can release many projects in the environment and version specified.
+```
+rpr {project_key_1,project_key_2} {environment}
+```
+
 #Projects Keys
+
 ```
 cu - contest.user.react
 cp - contest.panel.react
 au - ask.apply.react
 ap - ask.panel.react
 mar - mybusiness.affiliate.react
+ru - rewards.user.react
 ```
 
 
