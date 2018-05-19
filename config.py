@@ -7,10 +7,10 @@ name_server_test = 'test-swapwink'
 name_server_prod = 'ec2.swapwink.com'
 
 # Proyectos activos.
-active_projects = ['cu', 'cp', 'au', 'ap', 'mar']
+active_projects = ['cu', 'cp', 'au', 'ap', 'mar', 'ru']
 
 # Environments válidos, solo se ejecutarán los environments que esten configurados en esta variable.
-active_enviroments = ['dev', 'test', 'demo']
+active_enviroments = ['dev', 'test', 'demo', 'prod']
 
 # Proyecto donde se incluira los compilados dependiendo del environment.
 project_dst_path_test = {
@@ -45,7 +45,7 @@ file_asset_name = {
     'au': 'ApplyAsset', 
     'ap': 'AskAsset', 
     'mar': 'MyBusinessAffiliateReactAsset',
-    'ru': 'ReactAffiliateAsset'
+    'ru': 'ReactAsset'
 }
 
 # Carpeta especifica donde se incluyen los compilados dentro de frontend/web
