@@ -40,7 +40,7 @@ base_path_local_source = '/Users/josemoguel/Documents/fuentes/swapwink/'
 ```
 ln -s /Users/josemoguel/Documents/scripts-python/release-project-react.py rpr
 ```
-7. Search your python3 path with `wich python3`
+7. Search your python3 path with `which python3`
 ```
 /usr/bin/python3
 ```
