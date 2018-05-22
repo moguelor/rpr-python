@@ -1,4 +1,4 @@
-# scripts-python
+# Release Project React (Python)
 
 Build compiled react files in the many projects.
 
