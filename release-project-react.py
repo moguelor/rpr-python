@@ -200,14 +200,14 @@ def updateSolution(project_key, env="dev"):
     # Checkout a rama del enviroment especificado por default es master.
     command = base_command + ' && git checkout origin ' + master_branch_name
     printWithColor('==== Checkout branch { ' + master_branch_name + ' } ===')
-    printWithColor('\033[94m command: git checkout ' + master_branch_name)
+    printWithColor('\033[94m command: git checkout origin' + master_branch_name)
     os.system(command)
     print('\n')
 
     # Baja los cambios de master.
     command = base_command + ' && git pull origin ' + master_branch_name
     printWithColor('==== Git pull { ' + master_branch_name + ' } ===')
-    printWithColor('\033[94m command: git pull ' + master_branch_name)
+    printWithColor('\033[94m command: git pull origin ' + master_branch_name)
     os.system(command)
     print('\n')
 
