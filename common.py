@@ -1,10 +1,7 @@
 #!/Library/Frameworks/Python.framework/Versions/3.6/bin/python3
 
-import subprocess
-import os
-import sys
-from config import (name_server_test, name_server_prod)
-from config_local import (base_path_local_source)
+from config.settings import (servers)
+from config.local_settings import (base_path_local_source)
 
 # Mensaje para confirmar.
 def confirmMessage(message):
@@ -25,9 +22,9 @@ def printWithColor(text):
 # Obtener el nombre del servidor.
 def getNameServer(env = 'test'):
     if(env == 'test' or env == 'demo'):
-        return name_server_test
+        return servers['test']
     elif(env == 'prod'):
-        return name_server_prod
+        return servers['prod']
     else:
         return ''
 

@@ -1,3 +1,4 @@
 __pycache__
 .vscode
-config_local.py
+.idea
+config/local_settings.py

@@ -11,13 +11,12 @@
 # rpr {project} {environment} {branch} - Libera el compilado desde la rama especificada del proyecto.
 # rpr {project1,project2} {environment} - Libera los proyectos en el environment especificado.
 
-import subprocess
 import os
 import sys
 import shutil
 from common import (confirmMessage, printWithColor,getBasePathSource, getNameServer)
-from config import (name_server_test, name_server_prod, active_projects, active_enviroments, project_dst_path_test, project_dst_path_demo, project_dst_path_prod, file_asset_name, folder_web_name)
-from config_local import (base_path_local_source, temp_path, project_names, project_dst_path_dev, project_dst_path_dev)
+from config.settings import (active_projects, active_enviroments, project_dst_path, file_asset_name, folder_web_name)
+from config.local_settings import (temp_path, project_names, project_dst_path_dev)
 
 # Rama master
 master_branch_name = 'master'
@@ -65,11 +64,12 @@ def getDstProject(project, env="dev"):
     if env == "dev":
         return project_dst_path_dev[project]
     if env == "test":
-        return project_dst_path_test[project]
+        project_prefix = 'stable-'
     if env == "demo":
-        return project_dst_path_demo[project]
+        project_prefix = 'demo-'
     if env == "prod":
-        return project_dst_path_prod[project]
+        project_prefix = ''
+    return project_prefix + project_dst_path[project]
 
 # Generacion del archivo Asset.php
 def buildFile(filename, project, compiled_files):

@@ -3,7 +3,7 @@
 Build compiled react files in the many projects.
 
 1. Install `python3` with `brew` or with installer in the page https://www.python.org/download/releases/3.0/.
-2. Create the file `config_local.py`
+2. Create the file `config/local_settings.py`
 2. Config your react names folders depending your local:
 
 ```python
