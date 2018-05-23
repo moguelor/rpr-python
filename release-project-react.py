@@ -129,7 +129,7 @@ def buildFile(filename, project, compiled_files):
     file += '       $this->js[] = "'+folder_web+'/' + compiled_files['js'] + '"; \n'
 
     # Estos proyectos necesitan del api de maps.
-    if project in ['mar']:
+    if project in ['mar', 'ru']:
         file += '       $this->js[] = \'//maps.googleapis.com/maps/api/js?key=\'. Yii::$app->params[\'googleMapsApiKey\'] .\'&libraries=geometry,drawing,places\'; \n'     
 
     # Estos proyectos necesitan del api de maps.
@@ -137,7 +137,6 @@ def buildFile(filename, project, compiled_files):
         file += '       $this->js[] = \'https://code.jquery.com/jquery-3.2.1.slim.min.js\'; \n'
         file += '       $this->js[] = \'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js\'; \n'     
         file += '       $this->js[] = \'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js\'; \n'     
-        file += '       $this->js[] = \'https://maps.googleapis.com/maps/api/js?key=AIzaSyAwFJiDODaDcPYUgDPJ4zY2HftPNQeLzNY&libraries=geometry,drawing,places\'; \n'     
 
     
     file += '\n'
