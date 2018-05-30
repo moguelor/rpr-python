@@ -197,9 +197,9 @@ def updateSolution(project_key, env="dev"):
     print('\n')
 
     # Checkout a rama del enviroment especificado por default es master.
-    command = base_command + ' && git checkout origin ' + master_branch_name
+    command = base_command + ' && git checkout ' + master_branch_name
     printWithColor('==== Checkout branch { ' + master_branch_name + ' } ===')
-    printWithColor('\033[94m command: git checkout origin' + master_branch_name)
+    printWithColor('\033[94m command: git checkout ' + master_branch_name)
     os.system(command)
     print('\n')
 
