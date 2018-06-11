@@ -210,6 +210,13 @@ def updateSolution(project_key, env="dev"):
     os.system(command)
     print('\n')
 
+    # Actualiza librerías.
+    command = base_command + ' && npm update'
+    printWithColor('==== Updating NPM libraries ===')
+    printWithColor('\033[94m command: npm update')
+    os.system(command)
+    print('\n')
+
     # Elimina los assets dentro de frontend/web/
     command = verifyServer('rm -r ./' + getDstProject(project_key, env) + '/frontend/web/assets/*', env, True)
     printWithColor('==== Deleting assets from frontend/web/assets ===')
