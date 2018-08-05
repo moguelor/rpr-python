@@ -101,6 +101,8 @@ au - ask.apply.react
 ap - ask.panel.react
 mar - mybusiness.affiliate.react
 ru - rewards.user.react
+tp - trivia.panel.react
+
 ```
 
 
