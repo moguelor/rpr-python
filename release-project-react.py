@@ -102,6 +102,9 @@ def buildFile(filename, project, compiled_files):
     file += '       \'' + folder_web + '/' + compiled_files['css'] + '\', \n'
     file += '       \'//fonts.googleapis.com/css?family=Open+Sans::300,300i,400,400i,600,600i,700,700i\', \n'
 
+     if project in ['cu']:
+        file += '       \'//fonts.googleapis.com/css?family=Poppins::300,300i,400,400i,600,600i,700,700i\', \n'
+
     if project in ['ru']:
         file += '       \'css/react.css\', \n'
         file += '       \'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css\', \n'
