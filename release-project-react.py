@@ -103,7 +103,7 @@ def buildFile(filename, project, compiled_files):
     file += '       \'//fonts.googleapis.com/css?family=Open+Sans::300,300i,400,400i,600,600i,700,700i\', \n'
     
     if project in ['cu']:
-        file += '       \'//fonts.googleapis.com/css?family=Poppins::300,300i,400,400i,600,600i,700,700i\', \n'
+        file += '       \'//fonts.googleapis.com/css?family=Poppins:300,300i,400,400i,500,500i,600,600i,700,700i\', \n'
 
     if project in ['ru']:
         file += '       \'css/react.css\', \n'

@@ -6,7 +6,7 @@ servers = {
 }
 
 # Proyectos activos.
-active_projects = ['cu', 'cp', 'au', 'ap', 'mar', 'ru', 'tp']
+active_projects = ['cu', 'cp', 'au', 'ap', 'mar', 'ru', 'tp', 'mpr']
 
 # Environments válidos, solo se ejecutarán los environments que esten configurados en esta variable.
 active_enviroments = ['dev', 'test', 'demo', 'prod']
@@ -19,7 +19,8 @@ project_dst_path = {
     'ap': 'mybusiness',
     'mar': 'mybusiness',
     'ru' : 'rewards',
-    'tp' : 'mybusiness'
+    'tp' : 'mybusiness',
+    'mpr' : 'mybusiness'
 }
 
 # Nombre del archivo generado representando el Asset.php.
@@ -30,7 +31,8 @@ file_asset_name = {
     'ap': 'AskAsset',
     'mar': 'MyBusinessAffiliateReactAsset',
     'ru': 'ReactAsset',
-    'tp': 'TriviaAsset'
+    'tp': 'TriviaAsset',
+    'mpr': 'MyBusinessProductReactAsset'
 }
 
 # Carpeta especifica donde se incluyen los compilados dentro de frontend/web
@@ -41,5 +43,6 @@ folder_web_name = {
     'ap': 'ask',
     'mar': 'mybusiness-affiliate-react',
     'ru' : 'react',
-    'tp' : 'trivia'
+    'tp' : 'trivia',
+    'mpr' : 'mybusiness-product-react'
 }
